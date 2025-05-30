@@ -1,0 +1,33 @@
+{
+  "frame": {
+    "version": "1",
+    "name": "Weather App",
+    "iconUrl": "https://farweather.vercel.app/weather-icon.png",
+    "homeUrl": "https://farweather.vercel.app",
+    "imageUrl": "https://farweather.vercel.app/weather-preview.png",
+    "buttonTitle": "🌤️ Check Weather",
+    "splashImageUrl": "https://farweather.vercel.app/weather-splash.png",
+    "splashBackgroundColor": "#667eea",
+    "subtitle": "Real-time weather forecasts",
+    "description": "Get current weather conditions, hourly and daily forecasts for any location worldwide. Features location detection, search, and beautiful weather visualizations.",
+    "screenshotUrls": [
+      "https://farweather.vercel.app/screenshot1.png",
+      "https://farweather.vercel.app/screenshot2.png"
+    ],
+    "primaryCategory": "utility",
+    "tags": [
+      "weather",
+      "forecast",
+      "location",
+      "utility"
+    ],
+    "heroImageUrl": "https://farweather.vercel.app/weather-hero.png",
+    "tagline": "Beautiful weather forecasts",
+    "ogTitle": "Weather Mini App",
+    "ogDescription": "Get real-time weather forecasts with beautiful visualizations in this Farcaster mini app.",
+    "ogImageUrl": "https://farweather.vercel.app/weather-og.png",
+    "requiredCapabilities": [
+      "actions.ready"
+    ]
+  }
+}
