@@ -147,12 +147,6 @@ export const RainAlertsSettings: React.FC<RainAlertsSettingsProps> = ({ location
     return `${hour - 12}:00 PM`;
   };
 
-  const intensityColors = {
-    light: 'text-blue-600',
-    moderate: 'text-yellow-600',
-    heavy: 'text-red-600',
-  };
-
   const intensityDescriptions = {
     light: 'Light rain (< 2.5mm/hr)',
     moderate: 'Moderate rain (2.5-7.5mm/hr)',
@@ -161,11 +155,11 @@ export const RainAlertsSettings: React.FC<RainAlertsSettingsProps> = ({ location
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-3">Loading settings...</span>
+      <div className="rain-alerts-loading">
+        <div className="rain-alerts-loading-content">
+          <div className="rain-alerts-loading-spinner">
+            <div className="loading-spinner"></div>
+            <span>Loading settings...</span>
           </div>
         </div>
       </div>
@@ -173,208 +167,211 @@ export const RainAlertsSettings: React.FC<RainAlertsSettingsProps> = ({ location
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div className="rain-alerts-settings-overlay">
+      <div className="rain-alerts-settings-modal">
         {/* Header */}
-        <div className="sticky top-0 bg-white rounded-t-2xl border-b border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Bell className="h-6 w-6 text-blue-600 mr-3" />
-              <h2 className="text-xl font-semibold">Rain Alerts</h2>
-            </div>
+        <div className="rain-alerts-settings-header">
+          <div className="rain-alerts-settings-title">
+            <h2>
+              <Bell className="icon" />
+              Rain Alerts
+            </h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 p-1"
+              className="rain-alerts-close-btn"
             >
               ✕
             </button>
           </div>
-          <p className="text-gray-600 mt-2">
+          <p className="rain-alerts-settings-subtitle">
             Get notified when rain is expected at {location.name}
           </p>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="rain-alerts-settings-content">
           {/* Enable/Disable Toggle */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              {preferences.enabled ? (
-                <Bell className="h-5 w-5 text-green-600 mr-3" />
-              ) : (
-                <BellOff className="h-5 w-5 text-gray-400 mr-3" />
-              )}
-              <div>
-                <p className="font-medium">Rain Alerts</p>
-                <p className="text-sm text-gray-600">
-                  {preferences.enabled ? 'Active' : 'Disabled'}
-                </p>
+          <div className="rain-alerts-settings-section">
+            <div className="rain-alerts-toggle-row">
+              <div className="rain-alerts-toggle-info">
+                {preferences.enabled ? (
+                  <Bell className="icon enabled" />
+                ) : (
+                  <BellOff className="icon disabled" />
+                )}
+                <div className="rain-alerts-toggle-text">
+                  <h3>Rain Alerts</h3>
+                  <p>{preferences.enabled ? 'Active' : 'Disabled'}</p>
+                </div>
               </div>
+              <button
+                onClick={() => setPreferences(prev => ({ ...prev, enabled: !prev.enabled }))}
+                className={`rain-alerts-toggle-switch ${preferences.enabled ? 'enabled' : 'disabled'}`}
+              >
+                <span className="rain-alerts-toggle-button" />
+              </button>
             </div>
-            <button
-              onClick={() => setPreferences(prev => ({ ...prev, enabled: !prev.enabled }))}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                preferences.enabled ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  preferences.enabled ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
           </div>
 
           {preferences.enabled && (
             <>
               {/* Advance Time */}
-              <div>
-                <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                  <Clock className="h-4 w-4 mr-2" />
-                  Alert me this many minutes before rain
-                </label>
-                <select
-                  value={preferences.preferences.advanceTime}
-                  onChange={(e) => setPreferences(prev => ({
-                    ...prev,
-                    preferences: {
-                      ...prev.preferences,
-                      advanceTime: parseInt(e.target.value)
-                    }
-                  }))}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value={15}>15 minutes</option>
-                  <option value={30}>30 minutes</option>
-                  <option value={60}>1 hour</option>
-                  <option value={120}>2 hours</option>
-                  <option value={180}>3 hours</option>
-                  <option value={360}>6 hours</option>
-                  <option value={720}>12 hours</option>
-                </select>
+              <div className="rain-alerts-settings-section">
+                <div className="rain-alerts-form-group">
+                  <label className="rain-alerts-form-label">
+                    <Clock className="icon" />
+                    Alert me this many minutes before rain
+                  </label>
+                  <select
+                    value={preferences.preferences.advanceTime}
+                    onChange={(e) => setPreferences(prev => ({
+                      ...prev,
+                      preferences: {
+                        ...prev.preferences,
+                        advanceTime: parseInt(e.target.value)
+                      }
+                    }))}
+                    className="rain-alerts-select"
+                  >
+                    <option value={15}>15 minutes</option>
+                    <option value={30}>30 minutes</option>
+                    <option value={60}>1 hour</option>
+                    <option value={120}>2 hours</option>
+                    <option value={180}>3 hours</option>
+                    <option value={360}>6 hours</option>
+                    <option value={720}>12 hours</option>
+                  </select>
+                </div>
               </div>
 
               {/* Minimum Intensity */}
-              <div>
-                <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                  <Droplets className="h-4 w-4 mr-2" />
-                  Minimum rain intensity
-                </label>
-                <div className="space-y-2">
-                  {(['light', 'moderate', 'heavy'] as const).map((intensity) => (
-                    <label key={intensity} className="flex items-center">
-                      <input
-                        type="radio"
-                        name="intensity"
-                        value={intensity}
-                        checked={preferences.preferences.minimumIntensity === intensity}
-                        onChange={(e) => setPreferences(prev => ({
-                          ...prev,
-                          preferences: {
-                            ...prev.preferences,
-                            minimumIntensity: e.target.value as 'light' | 'moderate' | 'heavy'
-                          }
-                        }))}
-                        className="mr-3"
-                      />
-                      <span className={`font-medium capitalize ${intensityColors[intensity]}`}>
-                        {intensity}
-                      </span>
-                      <span className="text-sm text-gray-600 ml-2">
-                        {intensityDescriptions[intensity]}
-                      </span>
-                    </label>
-                  ))}
+              <div className="rain-alerts-settings-section">
+                <div className="rain-alerts-form-group">
+                  <label className="rain-alerts-form-label">
+                    <Droplets className="icon" />
+                    Minimum rain intensity
+                  </label>
+                  <div className="rain-alerts-radio-group">
+                    {(['light', 'moderate', 'heavy'] as const).map((intensity) => (
+                      <label key={intensity} className="rain-alerts-radio-option">
+                        <input
+                          type="radio"
+                          name="intensity"
+                          value={intensity}
+                          checked={preferences.preferences.minimumIntensity === intensity}
+                          onChange={(e) => setPreferences(prev => ({
+                            ...prev,
+                            preferences: {
+                              ...prev.preferences,
+                              minimumIntensity: e.target.value as 'light' | 'moderate' | 'heavy'
+                            }
+                          }))}
+                        />
+                        <div className="rain-alerts-radio-label">
+                          <span className={`rain-alerts-intensity-name ${intensity}`}>
+                            {intensity}
+                          </span>
+                          <span className="rain-alerts-intensity-desc">
+                            {intensityDescriptions[intensity]}
+                          </span>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
 
               {/* Time Window */}
-              <div>
-                <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Active hours
-                </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs text-gray-600 mb-1 block">From</label>
-                    <select
-                      value={preferences.preferences.timeWindow.startHour}
-                      onChange={(e) => setPreferences(prev => ({
-                        ...prev,
-                        preferences: {
-                          ...prev.preferences,
-                          timeWindow: {
-                            ...prev.preferences.timeWindow,
-                            startHour: parseInt(e.target.value)
+              <div className="rain-alerts-settings-section">
+                <div className="rain-alerts-form-group">
+                  <label className="rain-alerts-form-label">
+                    <Settings className="icon" />
+                    Active hours
+                  </label>
+                  <div className="rain-alerts-time-grid">
+                    <div className="rain-alerts-time-input-group">
+                      <label className="rain-alerts-time-label">From</label>
+                      <select
+                        value={preferences.preferences.timeWindow.startHour}
+                        onChange={(e) => setPreferences(prev => ({
+                          ...prev,
+                          preferences: {
+                            ...prev.preferences,
+                            timeWindow: {
+                              ...prev.preferences.timeWindow,
+                              startHour: parseInt(e.target.value)
+                            }
                           }
-                        }
-                      }))}
-                      className="w-full p-2 border border-gray-300 rounded-lg text-sm"
-                    >
-                      {Array.from({ length: 24 }, (_, i) => (
-                        <option key={i} value={i}>{formatHour(i)}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-600 mb-1 block">To</label>
-                    <select
-                      value={preferences.preferences.timeWindow.endHour}
-                      onChange={(e) => setPreferences(prev => ({
-                        ...prev,
-                        preferences: {
-                          ...prev.preferences,
-                          timeWindow: {
-                            ...prev.preferences.timeWindow,
-                            endHour: parseInt(e.target.value)
+                        }))}
+                        className="rain-alerts-time-select"
+                      >
+                        {Array.from({ length: 24 }, (_, i) => (
+                          <option key={i} value={i}>{formatHour(i)}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="rain-alerts-time-input-group">
+                      <label className="rain-alerts-time-label">To</label>
+                      <select
+                        value={preferences.preferences.timeWindow.endHour}
+                        onChange={(e) => setPreferences(prev => ({
+                          ...prev,
+                          preferences: {
+                            ...prev.preferences,
+                            timeWindow: {
+                              ...prev.preferences.timeWindow,
+                              endHour: parseInt(e.target.value)
+                            }
                           }
-                        }
-                      }))}
-                      className="w-full p-2 border border-gray-300 rounded-lg text-sm"
-                    >
-                      {Array.from({ length: 24 }, (_, i) => (
-                        <option key={i} value={i}>{formatHour(i)}</option>
-                      ))}
-                    </select>
+                        }))}
+                        className="rain-alerts-time-select"
+                      >
+                        {Array.from({ length: 24 }, (_, i) => (
+                          <option key={i} value={i}>{formatHour(i)}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Max Alerts Per Day */}
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Maximum alerts per day
-                </label>
-                <select
-                  value={preferences.preferences.maxAlertsPerDay}
-                  onChange={(e) => setPreferences(prev => ({
-                    ...prev,
-                    preferences: {
-                      ...prev.preferences,
-                      maxAlertsPerDay: parseInt(e.target.value)
-                    }
-                  }))}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {Array.from({ length: 10 }, (_, i) => (
-                    <option key={i + 1} value={i + 1}>{i + 1} alert{i !== 0 ? 's' : ''}</option>
-                  ))}
-                </select>
+              <div className="rain-alerts-settings-section">
+                <div className="rain-alerts-form-group">
+                  <label className="rain-alerts-form-label">
+                    Maximum alerts per day
+                  </label>
+                  <select
+                    value={preferences.preferences.maxAlertsPerDay}
+                    onChange={(e) => setPreferences(prev => ({
+                      ...prev,
+                      preferences: {
+                        ...prev.preferences,
+                        maxAlertsPerDay: parseInt(e.target.value)
+                      }
+                    }))}
+                    className="rain-alerts-select"
+                  >
+                    {Array.from({ length: 10 }, (_, i) => (
+                      <option key={i + 1} value={i + 1}>{i + 1} alert{i !== 0 ? 's' : ''}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </>
           )}
         </div>
 
         {/* Actions */}
-        <div className="sticky bottom-0 bg-white rounded-b-2xl border-t border-gray-200 p-6">
-          <div className="space-y-3">
+        <div className="rain-alerts-settings-footer">
+          <div className="rain-alerts-actions">
             {preferences.enabled && (
               <button
                 onClick={sendTestNotification}
                 disabled={testing}
-                className="w-full flex items-center justify-center px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rain-alerts-test-btn"
               >
-                <TestTube className="h-4 w-4 mr-2" />
+                <TestTube className="icon" />
                 {testing ? 'Sending...' : 'Send Test Alert'}
               </button>
             )}
@@ -382,7 +379,7 @@ export const RainAlertsSettings: React.FC<RainAlertsSettingsProps> = ({ location
             <button
               onClick={savePreferences}
               disabled={saving}
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              className="rain-alerts-save-btn"
             >
               {saving ? 'Saving...' : 'Save Settings'}
             </button>

@@ -1852,9 +1852,437 @@ body {
 }
 
 .home-options .divider span {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0 15px;
+  position: relative;
+  z-index: 1;
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Rain Alerts Settings Modal */
+.rain-alerts-settings-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.rain-alerts-settings-modal {
+  background: white;
+  border-radius: var(--border-radius);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-hover);
+}
+
+.rain-alerts-settings-header {
+  position: sticky;
+  top: 0;
+  background: white;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  border-bottom: 1px solid var(--border-color);
+  padding: 24px;
+}
+
+.rain-alerts-settings-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.rain-alerts-settings-title h2 {
+  display: flex;
+  align-items: center;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.rain-alerts-settings-title .icon {
+  margin-right: 12px;
+  color: var(--primary-blue);
+}
+
+.rain-alerts-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  font-size: 18px;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.rain-alerts-close-btn:hover {
+  color: var(--text-primary);
   background: var(--background-light);
-  padding: 0 16px;
+}
+
+.rain-alerts-settings-subtitle {
   color: var(--text-secondary);
   font-size: 14px;
+  margin: 0;
+}
+
+.rain-alerts-settings-content {
+  padding: 24px;
+}
+
+.rain-alerts-settings-section {
+  margin-bottom: 24px;
+}
+
+.rain-alerts-settings-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Loading State */
+.rain-alerts-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.rain-alerts-loading-content {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 16px;
+  text-align: center;
+}
+
+.rain-alerts-loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.rain-alerts-loading-spinner .loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--border-color);
+  border-top: 2px solid var(--primary-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Toggle Switch */
+.rain-alerts-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rain-alerts-toggle-info {
+  display: flex;
+  align-items: center;
+}
+
+.rain-alerts-toggle-info .icon {
+  margin-right: 12px;
+  width: 20px;
+  height: 20px;
+}
+
+.rain-alerts-toggle-info .icon.enabled {
+  color: var(--success-green);
+}
+
+.rain-alerts-toggle-info .icon.disabled {
+  color: var(--cloud-gray);
+}
+
+.rain-alerts-toggle-text h3 {
+  font-size: 16px;
   font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 2px 0;
+}
+
+.rain-alerts-toggle-text p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.rain-alerts-toggle-switch {
+  position: relative;
+  display: inline-flex;
+  height: 24px;
+  width: 44px;
+  align-items: center;
+  border-radius: 24px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.rain-alerts-toggle-switch.enabled {
+  background-color: var(--primary-blue);
+}
+
+.rain-alerts-toggle-switch.disabled {
+  background-color: var(--cloud-gray);
+}
+
+.rain-alerts-toggle-button {
+  display: inline-block;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background-color: white;
+  transition: transform 0.2s ease;
+  margin: 4px;
+}
+
+.rain-alerts-toggle-switch.enabled .rain-alerts-toggle-button {
+  transform: translateX(20px);
+}
+
+.rain-alerts-toggle-switch.disabled .rain-alerts-toggle-button {
+  transform: translateX(0);
+}
+
+/* Form Elements */
+.rain-alerts-form-group {
+  margin-bottom: 20px;
+}
+
+.rain-alerts-form-label {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.rain-alerts-form-label .icon {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  color: var(--text-secondary);
+}
+
+.rain-alerts-select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-small);
+  font-size: 14px;
+  color: var(--text-primary);
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.rain-alerts-select:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+/* Radio Options */
+.rain-alerts-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rain-alerts-radio-option {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.rain-alerts-radio-option input[type="radio"] {
+  margin-right: 12px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary-blue);
+}
+
+.rain-alerts-radio-label {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.rain-alerts-intensity-name {
+  font-weight: 500;
+  text-transform: capitalize;
+  margin-right: 8px;
+}
+
+.rain-alerts-intensity-name.light {
+  color: var(--primary-blue);
+}
+
+.rain-alerts-intensity-name.moderate {
+  color: var(--sunny-orange);
+}
+
+.rain-alerts-intensity-name.heavy {
+  color: var(--alert-red);
+}
+
+.rain-alerts-intensity-desc {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+/* Time Window Grid */
+.rain-alerts-time-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.rain-alerts-time-input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.rain-alerts-time-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rain-alerts-time-select {
+  width: 100%;
+  padding: 8px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-small);
+  font-size: 12px;
+  color: var(--text-primary);
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.rain-alerts-time-select:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+}
+
+/* Footer Actions */
+.rain-alerts-settings-footer {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+  border-top: 1px solid var(--border-color);
+  padding: 24px;
+}
+
+.rain-alerts-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rain-alerts-test-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  border: 2px solid var(--primary-blue);
+  background: transparent;
+  color: var(--primary-blue);
+  border-radius: var(--border-radius-small);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.rain-alerts-test-btn:hover:not(:disabled) {
+  background: rgba(74, 144, 226, 0.05);
+}
+
+.rain-alerts-test-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rain-alerts-test-btn .icon {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+}
+
+.rain-alerts-save-btn {
+  width: 100%;
+  background: var(--primary-blue);
+  color: white;
+  padding: 12px 16px;
+  border: none;
+  border-radius: var(--border-radius-small);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.rain-alerts-save-btn:hover:not(:disabled) {
+  background: var(--dark-blue);
+}
+
+.rain-alerts-save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 424px) {
+  .rain-alerts-settings-overlay {
+    padding: 8px;
+  }
+  
+  .rain-alerts-settings-modal {
+    max-height: 95vh;
+  }
+  
+  .rain-alerts-settings-header,
+  .rain-alerts-settings-content,
+  .rain-alerts-settings-footer {
+    padding: 16px;
+  }
+  
+  .rain-alerts-time-grid {
+    gap: 12px;
+  }
+  
+  .rain-alerts-settings-title h2 {
+    font-size: 18px;
+  }
 }
