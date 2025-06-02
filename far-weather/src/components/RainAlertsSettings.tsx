@@ -28,7 +28,7 @@ interface RainAlertsSettingsProps {
   onClose: () => void;
 }
 
-const API_BASE_URL = 'https://farweather-be.vercel.app/' 
+const API_BASE_URL = process.env.BACKEND_URL || 'https://farweather-be.vercel.app';
 
 
 export const RainAlertsSettings: React.FC<RainAlertsSettingsProps> = ({ location, onClose }) => {
