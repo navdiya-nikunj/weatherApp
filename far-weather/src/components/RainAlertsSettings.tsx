@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, BellOff, Clock, Droplets, Settings, TestTube, History } from 'lucide-react';
+import { Bell, BellOff, Clock, Droplets, Settings, TestTube } from 'lucide-react';
 import { sdk } from "@farcaster/frame-sdk";
 
 interface RainAlertPreferences {
@@ -28,9 +28,8 @@ interface RainAlertsSettingsProps {
   onClose: () => void;
 }
 
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://farweather-be.vercel.app/' 
-  : 'http://localhost:3001';
+const API_BASE_URL = 'https://farweather-be.vercel.app/' 
+
 
 export const RainAlertsSettings: React.FC<RainAlertsSettingsProps> = ({ location, onClose }) => {
   const [preferences, setPreferences] = useState<RainAlertPreferences>({
@@ -50,7 +49,6 @@ export const RainAlertsSettings: React.FC<RainAlertsSettingsProps> = ({ location
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [userContext, setUserContext] = useState<any>(null);
-  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     loadUserContext();
