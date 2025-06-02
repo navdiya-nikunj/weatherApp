@@ -33,7 +33,7 @@ interface ErrorState {
   type: 'error' | 'success' | 'info';
 }
 
-const API_BASE_URL = process.env.BACKEND_URL || 'https://farweather-8shtm0qsr-navdiya-nikunjs-projects.vercel.app';
+const API_BASE_URL = process.env.BACKEND_URL || 'https://farweather-be.vercel.app';
 
 
 export const RainAlertsSettings: React.FC<RainAlertsSettingsProps> = ({ location, onClose }) => {
