@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { useWeatherApp, LocationPermissionState, NavigationState } from '../hooks/useWeather';
 import { HomePage } from './HomePage';
 import { LocationSearch } from './LocationSearch';
@@ -8,9 +8,12 @@ import { DailyForecast } from './DailyForecast';
 import { LoadingSpinner } from './LoadingSpinner';
 import { ErrorMessage } from './ErrorMessage';
 import { LocationPermissionPrompt } from './LocationPermissionPrompt';
-import { Home, RefreshCw, AlertTriangle, RotateCcw, ArrowLeft } from 'lucide-react';
+import { RainAlertsSettings } from './RainAlertsSettings';
+import { Home, RefreshCw, AlertTriangle, RotateCcw, ArrowLeft, Bell } from 'lucide-react';
 
 export const WeatherApp: FC = () => {
+  const [showRainAlerts, setShowRainAlerts] = useState(false);
+  
   const {
     navigationState,
     goToHome,
@@ -167,14 +170,24 @@ export const WeatherApp: FC = () => {
                 </button>
               </div>
               
-              <button 
-                className="refresh-button"
-                onClick={refreshWeather}
-                disabled={isLoadingWeather}
-                title="Refresh weather data"
-              >
-                <RefreshCw className={`icon ${isLoadingWeather ? 'spinning' : ''}`} />
-              </button>
+              <div className="header-actions">
+                <button 
+                  className="alert-button"
+                  onClick={() => setShowRainAlerts(true)}
+                  title="Rain Alerts Settings"
+                >
+                  <Bell className="icon" />
+                </button>
+                
+                <button 
+                  className="refresh-button"
+                  onClick={refreshWeather}
+                  disabled={isLoadingWeather}
+                  title="Refresh weather data"
+                >
+                  <RefreshCw className={`icon ${isLoadingWeather ? 'spinning' : ''}`} />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -199,16 +212,22 @@ export const WeatherApp: FC = () => {
               
               <HourlyForecast 
                 hourlyData={weatherData.hourly}
+                timezone={weatherData.timezone}
               />
               
               <DailyForecast 
                 dailyData={weatherData.daily}
+                timezone={weatherData.timezone}
               />
             </div>
-          ) : (
-            <div className="weather-card">
-              <p>No weather data available</p>
-            </div>
+          ) : null}
+
+          {/* Rain Alerts Modal */}
+          {showRainAlerts && location && (
+            <RainAlertsSettings
+              location={location}
+              onClose={() => setShowRainAlerts(false)}
+            />
           )}
         </div>
       );
@@ -216,12 +235,14 @@ export const WeatherApp: FC = () => {
     default:
       return (
         <div className="weather-app">
-          <div className="weather-card">
-            <p>Something went wrong. Please refresh the app.</p>
-            <button className="btn btn-primary" onClick={goToHome}>
-              Go to Home
-            </button>
-          </div>
+          <ErrorMessage 
+            message="Navigation error"
+            details="Unknown navigation state"
+            action={{
+              label: 'Go Home',
+              onClick: goToHome
+            }}
+          />
         </div>
       );
   }
