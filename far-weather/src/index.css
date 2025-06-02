@@ -1940,6 +1940,107 @@ body {
   margin: 0;
 }
 
+/* Error/Success Messages */
+.rain-alerts-message {
+  margin-top: 16px;
+  border-radius: var(--border-radius-small);
+  animation: slideDown 0.3s ease-out;
+}
+
+.rain-alerts-message-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.rain-alerts-message-success {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.rain-alerts-message-info {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+.rain-alerts-message-content {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px;
+  gap: 8px;
+}
+
+.rain-alerts-message-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.rain-alerts-message-error .rain-alerts-message-icon .icon {
+  color: var(--alert-red);
+  width: 16px;
+  height: 16px;
+}
+
+.rain-alerts-message-success .rain-alerts-message-icon .icon {
+  color: var(--success-green);
+  width: 16px;
+  height: 16px;
+}
+
+.rain-alerts-message-info .rain-alerts-message-icon .icon {
+  color: var(--primary-blue);
+  width: 16px;
+  height: 16px;
+}
+
+.rain-alerts-message-text {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.rain-alerts-message-error .rain-alerts-message-text {
+  color: #991b1b;
+}
+
+.rain-alerts-message-success .rain-alerts-message-text {
+  color: #166534;
+}
+
+.rain-alerts-message-info .rain-alerts-message-text {
+  color: #1e40af;
+}
+
+.rain-alerts-message-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 2px;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.rain-alerts-message-close .icon {
+  width: 14px;
+  height: 14px;
+  color: var(--text-secondary);
+}
+
+.rain-alerts-message-close:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .rain-alerts-settings-content {
   padding: 24px;
 }
@@ -2260,6 +2361,18 @@ body {
 .rain-alerts-save-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.rain-alerts-settings-content {
+  padding: 24px;
+}
+
+.rain-alerts-settings-section {
+  margin-bottom: 24px;
+}
+
+.rain-alerts-settings-section:last-child {
+  margin-bottom: 0;
 }
 
 /* Responsive adjustments */

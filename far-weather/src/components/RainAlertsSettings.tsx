@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, BellOff, Clock, Droplets, Settings, TestTube } from 'lucide-react';
+import { Bell, BellOff, Clock, Droplets, Settings, TestTube, AlertCircle, CheckCircle, X } from 'lucide-react';
 import { sdk } from "@farcaster/frame-sdk";
 
 interface RainAlertPreferences {
@@ -28,7 +28,12 @@ interface RainAlertsSettingsProps {
   onClose: () => void;
 }
 
-const API_BASE_URL = process.env.BACKEND_URL || 'https://farweather-be.vercel.app';
+interface ErrorState {
+  message: string;
+  type: 'error' | 'success' | 'info';
+}
+
+const API_BASE_URL = process.env.BACKEND_URL || 'https://farweather-8shtm0qsr-navdiya-nikunjs-projects.vercel.app';
 
 
 export const RainAlertsSettings: React.FC<RainAlertsSettingsProps> = ({ location, onClose }) => {
@@ -49,6 +54,7 @@ export const RainAlertsSettings: React.FC<RainAlertsSettingsProps> = ({ location
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [userContext, setUserContext] = useState<any>(null);
+  const [errorState, setErrorState] = useState<ErrorState | null>(null);
 
   useEffect(() => {
     loadUserContext();
@@ -60,12 +66,40 @@ export const RainAlertsSettings: React.FC<RainAlertsSettingsProps> = ({ location
     }
   }, [userContext]);
 
+  // Auto-hide success messages after 5 seconds
+  useEffect(() => {
+    if (errorState?.type === 'success') {
+      const timer = setTimeout(() => {
+        setErrorState(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorState]);
+
+  const showError = (message: string, type: 'error' | 'success' | 'info' = 'error') => {
+    setErrorState({ message, type });
+  };
+
+  const hideError = () => {
+    setErrorState(null);
+  };
+
+  const parseErrorMessage = async (response: Response): Promise<string> => {
+    try {
+      const data = await response.json();
+      return data.error || data.message || `Server error (${response.status})`;
+    } catch {
+      return `Network error (${response.status} ${response.statusText})`;
+    }
+  };
+
   const loadUserContext = async () => {
     try {
       const context = await sdk.context;
       setUserContext(context);
     } catch (error) {
       console.error('Error loading user context:', error);
+      showError('Failed to load user context. Please refresh and try again.');
     }
   };
 
@@ -74,21 +108,34 @@ export const RainAlertsSettings: React.FC<RainAlertsSettingsProps> = ({ location
     
     try {
       const response = await fetch(`${API_BASE_URL}/api/alerts/preferences/${userContext.user.fid}`);
+      
       if (response.ok) {
         const data = await response.json();
         setPreferences(data.rainAlerts);
+      } else if (response.status === 404) {
+        // User preferences not found, use defaults
+        console.log('No existing preferences found, using defaults');
+      } else {
+        const errorMessage = await parseErrorMessage(response);
+        showError(`Failed to load settings: ${errorMessage}`);
       }
     } catch (error) {
       console.error('Error loading preferences:', error);
+      showError('Network error while loading settings. Please check your connection.');
     } finally {
       setLoading(false);
     }
   };
 
   const savePreferences = async () => {
-    if (!userContext?.user) return;
+    if (!userContext?.user) {
+      showError('User context not available. Please refresh and try again.');
+      return;
+    }
     
     setSaving(true);
+    hideError();
+    
     try {
       const payload = {
         fid: userContext.user.fid,
@@ -106,35 +153,48 @@ export const RainAlertsSettings: React.FC<RainAlertsSettingsProps> = ({ location
       });
 
       if (response.ok) {
-        console.log('Preferences saved successfully');
+        showError('Rain alert settings saved successfully! 🎉', 'success');
       } else {
-        throw new Error('Failed to save preferences');
+        const errorMessage = await parseErrorMessage(response);
+        showError(`Failed to save settings: ${errorMessage}`);
       }
     } catch (error) {
       console.error('Error saving preferences:', error);
-      alert('Failed to save preferences. Please try again.');
+      showError('Network error while saving settings. Please check your connection and try again.');
     } finally {
       setSaving(false);
     }
   };
 
   const sendTestNotification = async () => {
-    if (!userContext?.user?.fid) return;
+    if (!userContext?.user?.fid) {
+      showError('User context not available. Please refresh and try again.');
+      return;
+    }
     
     setTesting(true);
+    hideError();
+    
     try {
       const response = await fetch(`${API_BASE_URL}/api/alerts/test/${userContext.user.fid}`, {
         method: 'POST',
       });
 
       if (response.ok) {
-        alert('Test notification sent! Check your Farcaster direct messages.');
+        showError('Test notification sent successfully! Check your Farcaster direct messages. 📱', 'success');
       } else {
-        throw new Error('Failed to send test notification');
+        const errorMessage = await parseErrorMessage(response);
+        if (response.status === 404) {
+          showError('Please save your settings first before sending a test notification.');
+        } else if (response.status === 429) {
+          showError('Too many test notifications. Please wait a moment before trying again.');
+        } else {
+          showError(`Failed to send test notification: ${errorMessage}`);
+        }
       }
     } catch (error) {
       console.error('Error sending test:', error);
-      alert('Failed to send test notification. Please try again.');
+      showError('Network error while sending test notification. Please check your connection.');
     } finally {
       setTesting(false);
     }
@@ -186,6 +246,28 @@ export const RainAlertsSettings: React.FC<RainAlertsSettingsProps> = ({ location
           <p className="rain-alerts-settings-subtitle">
             Get notified when rain is expected at {location.name}
           </p>
+          
+          {/* Error/Success Messages */}
+          {errorState && (
+            <div className={`rain-alerts-message rain-alerts-message-${errorState.type}`}>
+              <div className="rain-alerts-message-content">
+                <div className="rain-alerts-message-icon">
+                  {errorState.type === 'error' && <AlertCircle className="icon" />}
+                  {errorState.type === 'success' && <CheckCircle className="icon" />}
+                  {errorState.type === 'info' && <Bell className="icon" />}
+                </div>
+                <div className="rain-alerts-message-text">
+                  {errorState.message}
+                </div>
+                <button
+                  onClick={hideError}
+                  className="rain-alerts-message-close"
+                >
+                  <X className="icon" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Content */}
