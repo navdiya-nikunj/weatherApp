@@ -13,7 +13,7 @@
     "buttonTitle": "🌤️ Check Weather",
     "splashImageUrl": "https://farweather.vercel.app/weather-splash.svg",
     "splashBackgroundColor": "#667eea",
-    "webhookUrl": "https://farweather-m8t1nzhhe-navdiya-nikunjs-projects.vercel.app/api/webhooks/farcaster",
+    "webhookUrl": "https://farweather-be.vercel.app/api/webhooks/farcaster",
     "subtitle": "Real-time weather forecasts",
     "description": "Get current weather conditions, hourly and daily forecasts for any location worldwide. Features location detection, search, and beautiful weather visualizations.",
     "screenshotUrls": [

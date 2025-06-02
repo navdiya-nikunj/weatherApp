@@ -29,7 +29,7 @@ interface RainAlertsSettingsProps {
 }
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-backend.vercel.app' 
+  ? 'https://farweather-be.vercel.app/' 
   : 'http://localhost:3001';
 
 export const RainAlertsSettings: React.FC<RainAlertsSettingsProps> = ({ location, onClose }) => {
