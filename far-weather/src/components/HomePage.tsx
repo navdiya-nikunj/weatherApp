@@ -1,5 +1,5 @@
-import { FC, useState } from 'react';
-import { MapPin, Search, Globe, Zap, Heart, Plus } from 'lucide-react';
+import { FC, useState, useEffect } from 'react';
+import { MapPin, Search, Globe, Zap, Heart, Plus, Check } from 'lucide-react';
 import { sdk } from "@farcaster/frame-sdk";
 
 interface HomePageProps {
@@ -15,9 +15,37 @@ export const HomePage: FC<HomePageProps> = ({
 }) => {
   const [isAddingApp, setIsAddingApp] = useState(false);
   const [addAppStatus, setAddAppStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [isAppAlreadyAdded, setIsAppAlreadyAdded] = useState<boolean | null>(null);
+  const [isInMiniApp, setIsInMiniApp] = useState<boolean | null>(null);
+
+  // Check if app is already added on component mount
+  useEffect(() => {
+    const checkAppStatus = async () => {
+      try {
+        const isInMiniApp = await sdk.isInMiniApp();
+        setIsInMiniApp(isInMiniApp);
+        if (isInMiniApp) {
+          const context = await sdk.context;
+          setIsAppAlreadyAdded(context?.client?.added || false);
+          console.log('isAppAlreadyAdded', isAppAlreadyAdded);
+        } else {
+          setIsAppAlreadyAdded(false);
+        }
+      } catch (error) {
+        console.error('Failed to check app status:', error);
+        setIsAppAlreadyAdded(false);
+      }
+    };
+
+    checkAppStatus();
+
+    console.log('isAppAlreadyAdded', isAppAlreadyAdded);
+  }, [sdk]);
 
   const handleAddMiniApp = async () => {
     try {
+      console.log('handleAddMiniApp');
+      console.log('isAppAlreadyAdded', isAppAlreadyAdded);
       setIsAddingApp(true);
       setAddAppStatus('idle');
       
@@ -33,6 +61,7 @@ export const HomePage: FC<HomePageProps> = ({
       // Call the addMiniApp action
       await sdk.actions.addMiniApp();
       setAddAppStatus('success');
+      setIsAppAlreadyAdded(true); // Update local state
       
       // Reset status after 3 seconds
       setTimeout(() => {
@@ -52,6 +81,63 @@ export const HomePage: FC<HomePageProps> = ({
     }
   };
 
+  // Determine what to show in the Add to Home section
+  const getAddToHomeContent = () => {
+    if (isAppAlreadyAdded === null) {
+      // Still checking status
+      return {
+        icon: <Plus className="icon large" />,
+        title: 'Checking Status...',
+        description: 'Please wait while we check your app status',
+        arrow: '⏳',
+        clickable: false
+      };
+    }
+
+    if (isAppAlreadyAdded) {
+      // App is already added
+      return {
+        icon: <Check className="icon large" style={{ color: '#22c55e' }} />,
+        title: 'Already Added!',
+        description: 'Weather app is saved to your Farcaster client',
+        arrow: '✓',
+        clickable: false
+      };
+    }
+
+    // App not added yet - show normal add flow
+    if (addAppStatus === 'success') {
+      return {
+        icon: <Heart className="icon large" style={{ color: '#22c55e' }} />,
+        title: 'Added to Home!',
+        description: 'Weather app has been added to your Farcaster client',
+        arrow: '✓',
+        clickable: false
+      };
+    }
+
+    if (addAppStatus === 'error') {
+      return {
+        icon: <Plus className="icon large" />,
+        title: 'Failed to Add',
+        description: 'Could not add app. Try again later.',
+        arrow: '→',
+        clickable: true
+      };
+    }
+
+    // Default state - ready to add
+    return {
+      icon: <Plus className="icon large" />,
+      title: 'Add to Home',
+      description: 'Save this weather app to your Farcaster client for quick access',
+      arrow: '→',
+      clickable: true
+    };
+  };
+
+  const addToHomeContent = getAddToHomeContent();
+
   return (
     <div className="home-page">
       <div className="weather-card welcome">
@@ -61,37 +147,26 @@ export const HomePage: FC<HomePageProps> = ({
         </div>
 
         {/* Add to Home section */}
-        <div className="add-app-section">
+        {isInMiniApp && !isAppAlreadyAdded && <div className="add-app-section">
           <div 
-            className={`option-card add-app-option ${addAppStatus !== 'idle' ? addAppStatus : ''}`}
-            onClick={handleAddMiniApp}
-            style={{ opacity: isAddingApp ? 0.7 : 1 }}
+            className={`option-card add-app-option ${
+              addAppStatus !== 'idle' ? addAppStatus : ''
+            } ${isAppAlreadyAdded ? 'already-added' : ''} ${
+              !addToHomeContent.clickable ? 'non-clickable' : ''
+            }`}
+            onClick={addToHomeContent.clickable ? handleAddMiniApp : undefined}
+            style={{ 
+              opacity: isAddingApp ? 0.7 : 1,
+              cursor: addToHomeContent.clickable ? 'pointer' : 'default'
+            }}
           >
             <div className="option-icon">
-              {addAppStatus === 'success' ? (
-                <Heart className="icon large" style={{ color: '#22c55e' }} />
-              ) : (
-                <Plus className="icon large" />
-              )}
+              {addToHomeContent.icon}
             </div>
             <div className="option-content">
-              <h3>
-                {addAppStatus === 'success' 
-                  ? 'Added to Home!' 
-                  : addAppStatus === 'error' 
-                    ? 'Failed to Add' 
-                    : 'Add to Home'
-                }
-              </h3>
-              <p>
-                {addAppStatus === 'success'
-                  ? 'Weather app has been added to your Farcaster client'
-                  : addAppStatus === 'error'
-                    ? 'Could not add app. Try again later.'
-                    : 'Save this weather app to your Farcaster client for quick access'
-                }
-              </p>
-              {addAppStatus === 'idle' && (
+              <h3>{addToHomeContent.title}</h3>
+              <p>{addToHomeContent.description}</p>
+              {addAppStatus === 'idle' && !isAppAlreadyAdded && (
                 <div className="option-benefits">
                   <div className="benefit">
                     <Zap className="icon small" />
@@ -105,11 +180,11 @@ export const HomePage: FC<HomePageProps> = ({
               )}
             </div>
             <div className="option-arrow">
-              {isAddingApp ? '⏳' : addAppStatus === 'success' ? '✓' : '→'}
+              {isAddingApp ? '⏳' : addToHomeContent.arrow}
             </div>
           </div>
         </div>
-
+}
         <div className="divider">
           <span>Get Weather</span>
         </div>
