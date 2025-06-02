@@ -1,12 +1,13 @@
 # 🌤️ Weather Mini App for Farcaster
 
-A beautiful, real-time weather forecasting mini app built specifically for the Farcaster ecosystem. Get current weather conditions, hourly and daily forecasts for any location worldwide with gorgeous visualizations.
+A beautiful, real-time weather forecasting mini app built specifically for the Farcaster ecosystem. Get current weather conditions, hourly and daily forecasts using your Farcaster profile location or by searching for any city worldwide.
 
 ![Weather Mini App Preview](https://your-domain.com/weather-preview.png)
 
 ## ✨ Features
 
-- **🌍 Location Services**: Automatic location detection and city search
+- **🌍 Profile Location**: Automatically uses location from your Farcaster profile
+- **🔍 City Search**: Search and select any city worldwide
 - **📊 Comprehensive Forecasts**: Current conditions, 24-hour, and 7-day forecasts
 - **🎨 Beautiful UI**: Modern glassmorphism design with weather-themed gradients
 - **📱 Mobile Optimized**: Perfect for Farcaster mobile clients (424x695px desktop)
@@ -22,6 +23,10 @@ A beautiful, real-time weather forecasting mini app built specifically for the F
 # Install dependencies
 npm install
 
+# Set up environment variables
+cp .env.example .env.local
+# Add your Neynar API key to .env.local
+
 # Start development server
 npm run dev
 
@@ -31,7 +36,32 @@ npm run build
 
 ### Environment Setup
 
-No environment variables required! The app uses the free Open-Meteo API.
+You need a Neynar API key to access Farcaster user profile data:
+
+1. **Get Neynar API Key**: Sign up at [neynar.com](https://neynar.com/) and get your API key
+2. **Create `.env.local`**:
+   ```env
+   VITE_NEYNAR_API_KEY=your_neynar_api_key_here
+   ```
+
+## 🔧 Location Features
+
+### Profile Location
+- Uses the location set in your Farcaster profile
+- Instant weather data without permissions
+- Seamless integration with Farcaster identity
+
+### Manual Search
+- Search for any city worldwide
+- Autocomplete with city suggestions
+- Backup option if profile location not set
+
+### Setting Your Farcaster Location
+To use the profile location feature:
+1. Open your Farcaster profile settings
+2. Add your location in the location field
+3. Save your profile
+4. The app will automatically detect and use this location
 
 ## 📋 Publishing to Farcaster
 
@@ -40,6 +70,7 @@ No environment variables required! The app uses the free Open-Meteo API.
 1. **Domain**: You need a domain where you'll host your mini app
 2. **Farcaster Account**: With custody address for signing the manifest
 3. **Hosting**: Any web hosting service (Vercel, Netlify, etc.)
+4. **Neynar API Key**: For accessing user profile data
 
 ### Step 1: Update Configuration
 
@@ -59,7 +90,12 @@ No environment variables required! The app uses the free Open-Meteo API.
    }
    ```
 
-2. **Update meta tags** in `index.html`:
+2. **Set environment variables** in your hosting platform:
+   ```env
+   VITE_NEYNAR_API_KEY=your_neynar_api_key_here
+   ```
+
+3. **Update meta tags** in `index.html`:
    Replace all instances of `https://your-domain.com` with your actual domain.
 
 ### Step 2: Create Required Images

@@ -1,8 +1,11 @@
 import type { 
   WeatherData, 
   GeocodingResponse, 
-  Location 
+  Location,
+  NeynarUserResponse,
+  NeynarError
 } from '../types/weather';
+import { sdk } from "@farcaster/frame-sdk";
 
 const OPEN_METEO_BASE_URL = 'https://api.open-meteo.com/v1';
 const GEOCODING_BASE_URL = 'https://geocoding-api.open-meteo.com/v1';
@@ -159,9 +162,129 @@ export const fetchWeatherData = async (latitude: number, longitude: number): Pro
 };
 
 /**
- * Get user's current location using browser geolocation
+ * Get current user's username from Farcaster SDK
  */
-export const getCurrentLocation = (): Promise<{ latitude: number; longitude: number }> => {
+export const getCurrentUsername = async (): Promise<string> => {
+  try {
+    const context = await sdk.context;
+    
+    if (!context?.user?.username) {
+      throw new Error('User not authenticated or username not available');
+    }
+    
+    return context.user.username;
+  } catch (error) {
+    console.error('Error getting current username:', error);
+    throw new Error('Unable to get current user information');
+  }
+};
+
+/**
+ * Fetch user profile from Neynar API
+ */
+export const fetchNeynarUserProfile = async (username: string): Promise<NeynarUserResponse> => {
+  const apiKey = import.meta.env.VITE_NEYNAR_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error('Neynar API key not configured');
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.neynar.com/v2/farcaster/user/by_username?username=${encodeURIComponent(username)}`,
+      {
+        method: 'GET',
+        headers: {
+          'x-api-key': apiKey,
+        },
+      }
+    );
+    console.log('response', response);
+
+    if (!response.ok) {
+      if (response.status === 400) {
+        const errorData: NeynarError = await response.json();
+        throw new Error(`User profile error: ${errorData.message}`);
+      }
+      throw new Error(`Neynar API error: ${response.status}`);
+    }
+
+    const data: NeynarUserResponse = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching Neynar user profile:', error);
+    throw new Error('Failed to fetch user profile. Please check your internet connection.');
+  }
+};
+
+/**
+ * Get user's current location from their Farcaster profile using Neynar API
+ */
+export const getCurrentLocationFromProfile = async (): Promise<{ 
+  latitude: number; 
+  longitude: number; 
+  locationName?: string 
+}> => {
+  try {
+    // Get current user's username from Farcaster SDK
+    const username = await getCurrentUsername();
+    
+    // Fetch user profile from Neynar API
+    const userProfile = await fetchNeynarUserProfile(username);
+    
+    // Check if user has location set in their profile
+    const location = userProfile.user.profile.location;
+    
+    if (!location || typeof location.latitude !== 'number' || typeof location.longitude !== 'number') {
+      throw new Error('Location not set in Farcaster profile');
+    }
+    
+    // Validate coordinates
+    if (!validateCoordinates(location.latitude, location.longitude)) {
+      throw new Error('Invalid location coordinates in profile');
+    }
+    
+    // Create location name from address if available
+    let locationName = 'Current Location';
+    if (location.address) {
+      const addressParts = [
+        location.address.city,
+        location.address.state || location.address.state_code,
+        location.address.country
+      ].filter(Boolean);
+      
+      if (addressParts.length > 0) {
+        locationName = addressParts.join(', ');
+      }
+    }
+    
+    return {
+      latitude: location.latitude,
+      longitude: location.longitude,
+      locationName,
+    };
+  } catch (error) {
+    console.error('Error getting location from profile:', error);
+    
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      if (error.message.includes('not authenticated')) {
+        throw new Error('Please connect your Farcaster account to use this feature');
+      } else if (error.message.includes('Location not set')) {
+        throw new Error('Please set your location in your Farcaster profile to use this feature');
+      } else if (error.message.includes('API key')) {
+        throw new Error('Service temporarily unavailable');
+      }
+    }
+    
+    throw error;
+  }
+};
+
+/**
+ * Get user's current location using browser geolocation (deprecated - keeping for fallback)
+ */
+export const getBrowserLocation = (): Promise<{ latitude: number; longitude: number }> => {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
       reject(new Error('Geolocation is not supported by this browser'));
@@ -200,6 +323,9 @@ export const getCurrentLocation = (): Promise<{ latitude: number; longitude: num
     );
   });
 };
+
+// Alias for backward compatibility
+export const getCurrentLocation = getCurrentLocationFromProfile;
 
 /**
  * Get weather alerts (if available in future API versions)

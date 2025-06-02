@@ -1,18 +1,23 @@
 {
+  "accountAssociation": {
+    "header": "eyJmaWQiOjM3NjEwNiwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDc3MjdDZDgwMTE4N2UzMjVEYjM0MkZGODJBM0QyNkI5OGUxNDE5QUQifQ",
+    "payload": "eyJkb21haW4iOiJmYXJ3ZWF0aGVyLnZlcmNlbC5hcHAifQ",
+    "signature": "MHg3ZWMwNDE5MmMwOWEzOTdiMmFjOWNjNjA5Nzg5NDAxYThjZTI0YjE4NTg2MzBjMTY5Y2VlMmNhMmZmY2E5OGQyMTM2ZGU3MTE0YTNhYjg2ZDg4NTRmNDkyYWQzOTA3ZGQ3MWE3MjY3MmMyMWQyYmMxN2YzMWZhODM2MzExMmYwMzFj"
+  },
   "frame": {
     "version": "1",
     "name": "Weather App",
-    "iconUrl": "https://farweather.vercel.app/weather-icon.png",
+    "iconUrl": "https://farweather.vercel.app/weather-icon.svg",
     "homeUrl": "https://farweather.vercel.app",
-    "imageUrl": "https://farweather.vercel.app/weather-preview.png",
+    "imageUrl": "https://farweather.vercel.app/weather-preview.svg",
     "buttonTitle": "🌤️ Check Weather",
-    "splashImageUrl": "https://farweather.vercel.app/weather-splash.png",
+    "splashImageUrl": "https://farweather.vercel.app/weather-splash.svg",
     "splashBackgroundColor": "#667eea",
     "subtitle": "Real-time weather forecasts",
     "description": "Get current weather conditions, hourly and daily forecasts for any location worldwide. Features location detection, search, and beautiful weather visualizations.",
     "screenshotUrls": [
-      "https://farweather.vercel.app/screenshot1.png",
-      "https://farweather.vercel.app/screenshot2.png"
+      "https://farweather.vercel.app/weather-preview.svg",
+      "https://farweather.vercel.app/weather-hero.svg"
     ],
     "primaryCategory": "utility",
     "tags": [
@@ -21,11 +26,11 @@
       "location",
       "utility"
     ],
-    "heroImageUrl": "https://farweather.vercel.app/weather-hero.png",
+    "heroImageUrl": "https://farweather.vercel.app/weather-hero.svg",
     "tagline": "Beautiful weather forecasts",
     "ogTitle": "Weather Mini App",
     "ogDescription": "Get real-time weather forecasts with beautiful visualizations in this Farcaster mini app.",
-    "ogImageUrl": "https://farweather.vercel.app/weather-og.png",
+    "ogImageUrl": "https://farweather.vercel.app/weather-og.svg",
     "requiredCapabilities": [
       "actions.ready"
     ]

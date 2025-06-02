@@ -4,8 +4,7 @@ import type { Location, WeatherData, HourlyForecastItem, DailyForecastItem } fro
 import {
   fetchWeatherData,
   searchLocations,
-  reverseGeocode,
-  getCurrentLocation,
+  getCurrentLocationFromProfile,
   validateCoordinates,
   withRetry,
 } from '../services/weatherApi';
@@ -21,6 +20,23 @@ const QUERY_KEYS = {
   search: (query: string) => ['search', query],
   reverseGeocode: (lat: number, lon: number) => ['reverseGeocode', lat, lon],
 } as const;
+
+// Location permission states
+export enum LocationPermissionState {
+  NOT_REQUESTED = 'not_requested',
+  PENDING = 'pending',
+  GRANTED = 'granted',
+  DENIED = 'denied',
+  ERROR = 'error',
+}
+
+// Navigation states for better UX
+export enum NavigationState {
+  HOME = 'home',
+  CURRENT_LOCATION = 'current_location',
+  SEARCH_LOCATION = 'search_location',
+  WEATHER_VIEW = 'weather_view',
+}
 
 /**
  * Hook for managing weather data
@@ -97,21 +113,43 @@ export const useLocationSearch = () => {
 };
 
 /**
- * Hook for getting current location
+ * Enhanced hook for getting current location from Farcaster profile
  */
 export const useCurrentLocation = () => {
   const queryClient = useQueryClient();
+  const [permissionState, setPermissionState] = useState<LocationPermissionState>(
+    LocationPermissionState.NOT_REQUESTED
+  );
 
   const locationMutation = useMutation({
     mutationFn: async (): Promise<Location> => {
-      const coords = await getCurrentLocation();
-      const locationInfo = await reverseGeocode(coords.latitude, coords.longitude);
+      setPermissionState(LocationPermissionState.PENDING);
       
-      return locationInfo || {
-        name: 'Current Location',
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-      };
+      try {
+        const locationData = await getCurrentLocationFromProfile();
+        setPermissionState(LocationPermissionState.GRANTED);
+        
+        return {
+          name: locationData.locationName || 'Profile Location',
+          latitude: locationData.latitude,
+          longitude: locationData.longitude,
+        };
+      } catch (error: any) {
+        // Handle specific Farcaster/Neynar errors
+        if (error.message.includes('Location not set')) {
+          setPermissionState(LocationPermissionState.DENIED);
+          throw new Error('Please set your location in your Farcaster profile settings to use this feature.');
+        } else if (error.message.includes('not authenticated')) {
+          setPermissionState(LocationPermissionState.ERROR);
+          throw new Error('Unable to access your Farcaster profile. Please make sure you are logged in.');
+        } else if (error.message.includes('API key')) {
+          setPermissionState(LocationPermissionState.ERROR);
+          throw new Error('Location service is temporarily unavailable. Please try again later.');
+        } else {
+          setPermissionState(LocationPermissionState.ERROR);
+          throw new Error('Failed to get location from your profile. Please try again or search for your city manually.');
+        }
+      }
     },
     onSuccess: (location) => {
       // Pre-fetch weather data for the new location
@@ -121,15 +159,29 @@ export const useCurrentLocation = () => {
         staleTime: 5 * 60 * 1000,
       });
     },
+    onError: () => {
+      // Permission state is already set in mutationFn
+    },
   });
 
+  const requestLocation = () => {
+    locationMutation.mutate();
+  };
+
+  const resetPermission = () => {
+    setPermissionState(LocationPermissionState.NOT_REQUESTED);
+    locationMutation.reset();
+  };
+
   return {
-    getCurrentLocation: locationMutation.mutate,
+    requestLocation,
     location: locationMutation.data,
     isLoading: locationMutation.isPending,
     error: locationMutation.error,
     isError: locationMutation.isError,
     isSuccess: locationMutation.isSuccess,
+    permissionState,
+    resetPermission,
     reset: locationMutation.reset,
   };
 };
@@ -148,12 +200,13 @@ export const useHourlyForecast = (weatherData: WeatherData | undefined, hours: n
     .slice(currentHourIndex, currentHourIndex + hours)
     .map((time, index) => {
       const actualIndex = currentHourIndex + index;
+      
       return {
         time: formatHourlyTime(time),
-        temperature: Math.round(weatherData.hourly.temperature_2m[actualIndex]),
+        temperature: weatherData.hourly.temperature_2m[actualIndex],
         weatherCode: weatherData.hourly.weather_code[actualIndex],
         precipitation: weatherData.hourly.precipitation[actualIndex] || 0,
-        humidity: Math.round(weatherData.hourly.relative_humidity_2m[actualIndex]),
+        humidity: weatherData.hourly.relative_humidity_2m[actualIndex],
       };
     });
 
@@ -167,17 +220,17 @@ export const useDailyForecast = (weatherData: WeatherData | undefined, days: num
   if (!weatherData?.daily) {
     return { dailyForecast: [] };
   }
-
+  
   const dailyForecast: DailyForecastItem[] = weatherData.daily.time
     .slice(0, days)
     .map((time, index) => ({
       date: formatDailyDate(time),
       weatherCode: weatherData.daily.weather_code[index],
-      maxTemp: Math.round(weatherData.daily.temperature_2m_max[index]),
-      minTemp: Math.round(weatherData.daily.temperature_2m_min[index]),
+      maxTemp: weatherData.daily.temperature_2m_max[index],
+      minTemp: weatherData.daily.temperature_2m_min[index],
       precipitation: weatherData.daily.precipitation_sum[index] || 0,
-      precipitationProbability: Math.round(weatherData.daily.precipitation_probability_max[index] || 0),
-      windSpeed: Math.round(weatherData.daily.wind_speed_10m_max[index]),
+      precipitationProbability: weatherData.daily.precipitation_probability_max?.[index] || 0,
+      windSpeed: weatherData.daily.wind_speed_10m_max[index],
       sunrise: weatherData.daily.sunrise[index],
       sunset: weatherData.daily.sunset[index],
     }));
@@ -186,13 +239,13 @@ export const useDailyForecast = (weatherData: WeatherData | undefined, days: num
 };
 
 /**
- * Hook for managing selected location state with localStorage persistence
+ * Hook for persisting location state
  */
 export const useLocationState = () => {
   const [location, setLocationState] = useState<Location | null>(null);
   const [isLocationLoaded, setIsLocationLoaded] = useState(false);
 
-  // Load location from localStorage on mount
+  // Load saved location on mount
   useEffect(() => {
     try {
       const savedLocation = localStorage.getItem('weather-location');
@@ -232,25 +285,31 @@ export const useLocationState = () => {
 };
 
 /**
- * Hook for weather data with automatic location detection
+ * Enhanced hook for weather app with better permission handling
  */
 export const useWeatherApp = () => {
   const { location, setLocation, isLocationLoaded } = useLocationState();
   const currentLocationHook = useCurrentLocation();
   const weatherHook = useWeather(location);
   const searchHook = useLocationSearch();
+  const [navigationState, setNavigationState] = useState<NavigationState>(NavigationState.HOME);
 
-  // Auto-detect location if no saved location
+  // Navigate to home page when app loads if no location is saved
   useEffect(() => {
-    if (isLocationLoaded && !location && !currentLocationHook.isLoading) {
-      currentLocationHook.getCurrentLocation();
+    if (isLocationLoaded) {
+      if (location) {
+        setNavigationState(NavigationState.WEATHER_VIEW);
+      } else {
+        setNavigationState(NavigationState.HOME);
+      }
     }
-  }, [isLocationLoaded, location, currentLocationHook.isLoading]);
+  }, [isLocationLoaded, location]);
 
-  // Set location when current location is successfully detected
+  // Handle current location detection completion
   useEffect(() => {
     if (currentLocationHook.isSuccess && currentLocationHook.location) {
       setLocation(currentLocationHook.location);
+      setNavigationState(NavigationState.WEATHER_VIEW);
     }
   }, [currentLocationHook.isSuccess, currentLocationHook.location, setLocation]);
 
@@ -258,19 +317,55 @@ export const useWeatherApp = () => {
     setLocation(newLocation);
     currentLocationHook.reset();
     searchHook.setSearchQuery('');
+    setNavigationState(NavigationState.WEATHER_VIEW);
   };
 
-  const detectCurrentLocation = () => {
-    currentLocationHook.getCurrentLocation();
+  const requestCurrentLocation = () => {
+    setNavigationState(NavigationState.CURRENT_LOCATION);
+    currentLocationHook.requestLocation();
+  };
+
+  const startLocationSearch = () => {
+    setNavigationState(NavigationState.SEARCH_LOCATION);
+    searchHook.setSearchQuery('');
+  };
+
+  const goToHome = () => {
+    setNavigationState(NavigationState.HOME);
+    // Clear any ongoing operations
+    currentLocationHook.reset();
+    searchHook.setSearchQuery('');
+  };
+
+  const clearLocation = () => {
+    setLocation(null);
+    setNavigationState(NavigationState.HOME);
+    currentLocationHook.reset();
+    searchHook.setSearchQuery('');
+  };
+
+  const retryCurrentLocation = () => {
+    currentLocationHook.resetPermission();
+    requestCurrentLocation();
   };
 
   return {
+    // Navigation state
+    navigationState,
+    goToHome,
+    requestCurrentLocation,
+    startLocationSearch,
+    clearLocation,
+    
     // Location state
     location,
     setLocation: selectLocation,
     
+    // Permission handling
+    locationPermissionState: currentLocationHook.permissionState,
+    retryCurrentLocation,
+    
     // Current location detection
-    detectCurrentLocation,
     isDetectingLocation: currentLocationHook.isLoading,
     locationDetectionError: currentLocationHook.error,
     

@@ -181,4 +181,77 @@ export interface DailyForecastItem {
   windSpeed: number;
   sunrise: string;
   sunset: string;
+}
+
+// Neynar API types
+export interface NeynarLocation {
+  latitude: number;
+  longitude: number;
+  radius: number;
+  address: {
+    city: string;
+    state: string;
+    state_code: string;
+    country: string;
+    country_code: string;
+  };
+}
+
+export interface NeynarUserProfile {
+  bio: {
+    text: string;
+    mentioned_profiles: Array<any>;
+    mentioned_profiles_ranges: Array<any>;
+    mentioned_channels: Array<any>;
+    mentioned_channels_ranges: Array<any>;
+  };
+  location?: NeynarLocation;
+}
+
+export interface NeynarUser {
+  object: string;
+  fid: number;
+  username: string;
+  display_name: string;
+  custody_address: string;
+  pfp_url: string;
+  profile: NeynarUserProfile;
+  follower_count: number;
+  following_count: number;
+  verifications: string[];
+  verified_addresses: {
+    eth_addresses: string[];
+    sol_addresses: string[];
+    primary: {
+      eth_address: string;
+      sol_address: string;
+    };
+  };
+  verified_accounts: Array<{
+    platform: string;
+    username: string;
+  }>;
+  power_badge: boolean;
+  experimental: {
+    deprecation_notice: string;
+    neynar_user_score: number;
+  };
+  score: number;
+  viewer_context: {
+    following: boolean;
+    followed_by: boolean;
+    blocking: boolean;
+    blocked_by: boolean;
+  };
+}
+
+export interface NeynarUserResponse {
+  user: NeynarUser;
+}
+
+export interface NeynarError {
+  code: string;
+  message: string;
+  property: string;
+  status: number;
 } 

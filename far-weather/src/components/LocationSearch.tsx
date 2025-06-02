@@ -11,6 +11,7 @@ interface LocationSearchProps {
   searchError: Error | null;
   placeholder?: string;
   compact?: boolean;
+  autoFocus?: boolean;
 }
 
 export const LocationSearch: FC<LocationSearchProps> = ({
@@ -22,6 +23,7 @@ export const LocationSearch: FC<LocationSearchProps> = ({
   searchError,
   placeholder = 'Search for a city...',
   compact = false,
+  autoFocus = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -118,6 +120,7 @@ export const LocationSearch: FC<LocationSearchProps> = ({
             }}
             placeholder={placeholder}
             className="search-input"
+            autoFocus={autoFocus}
           />
           {isSearching && (
             <Loader className="loading-icon" size={18} />

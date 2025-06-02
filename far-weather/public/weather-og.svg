@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="ogGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#ogGradient)"/>
+  
+  <!-- Left side content -->
+  <g transform="translate(80, 150)">
+    <!-- App title -->
+    <text x="0" y="50" font-family="Inter, sans-serif" font-size="56" font-weight="800" 
+          fill="#ffffff">Weather App</text>
+    
+    <!-- Subtitle -->
+    <text x="0" y="100" font-family="Inter, sans-serif" font-size="28" font-weight="400"
+          fill="#ffffff" opacity="0.9">Beautiful real-time weather</text>
+    <text x="0" y="140" font-family="Inter, sans-serif" font-size="28" font-weight="400"
+          fill="#ffffff" opacity="0.9">forecasts for Farcaster</text>
+    
+    <!-- Features -->
+    <g transform="translate(0, 200)">
+      <text x="0" y="30" font-family="Inter, sans-serif" font-size="18" 
+            fill="#ffffff">🌍 Global location search</text>
+      <text x="0" y="65" font-family="Inter, sans-serif" font-size="18" 
+            fill="#ffffff">📊 7-day detailed forecasts</text>
+      <text x="0" y="100" font-family="Inter, sans-serif" font-size="18" 
+            fill="#ffffff">⚡ Real-time weather data</text>
+    </g>
+  </g>
+  
+  <!-- Right side - Weather mockup -->
+  <g transform="translate(650, 100)">
+    <!-- Phone mockup frame -->
+    <rect x="50" y="0" width="300" height="500" rx="24" fill="#ffffff" opacity="0.1" stroke="#ffffff" stroke-width="2"/>
+    
+    <!-- Weather card -->
+    <g transform="translate(80, 60)">
+      <!-- Card background -->
+      <rect x="0" y="0" width="240" height="380" rx="16" fill="#ffffff" opacity="0.95"/>
+      
+      <!-- Location -->
+      <text x="20" y="40" font-family="Inter, sans-serif" font-size="18" font-weight="600" 
+            fill="#2C3E50">San Francisco</text>
+      
+      <!-- Main weather icon -->
+      <g transform="translate(60, 70)">
+        <circle cx="40" cy="40" r="30" fill="#FFD700"/>
+        <!-- Sun rays -->
+        <g stroke="#FFD700" stroke-width="3" stroke-linecap="round">
+          <line x1="40" y1="0" x2="40" y2="10" />
+          <line x1="68" y1="12" x2="62" y2="18" />
+          <line x1="80" y1="40" x2="70" y2="40" />
+          <line x1="68" y1="68" x2="62" y2="62" />
+          <line x1="40" y1="80" x2="40" y2="70" />
+          <line x1="12" y1="68" x2="18" y2="62" />
+          <line x1="0" y1="40" x2="10" y2="40" />
+          <line x1="12" y1="12" x2="18" y2="18" />
+        </g>
+      </g>
+      
+      <!-- Temperature -->
+      <text x="140" y="110" font-family="Inter, sans-serif" font-size="36" font-weight="700" 
+            fill="#2C3E50">22°</text>
+      <text x="140" y="135" font-family="Inter, sans-serif" font-size="16" 
+            fill="#5A6C7D">Sunny</text>
+      <text x="140" y="155" font-family="Inter, sans-serif" font-size="14" 
+            fill="#5A6C7D">Feels like 24°</text>
+      
+      <!-- Weather details -->
+      <g transform="translate(20, 180)">
+        <rect x="0" y="0" width="200" height="1" fill="#E1E8ED"/>
+        
+        <text x="0" y="25" font-family="Inter, sans-serif" font-size="14" 
+              fill="#5A6C7D">Wind: 12 km/h NW</text>
+        <text x="0" y="45" font-family="Inter, sans-serif" font-size="14" 
+              fill="#5A6C7D">Humidity: 65%</text>
+        <text x="0" y="65" font-family="Inter, sans-serif" font-size="14" 
+              fill="#5A6C7D">Pressure: 1013 hPa</text>
+      </g>
+      
+      <!-- Hourly forecast -->
+      <g transform="translate(20, 270)">
+        <text x="0" y="0" font-family="Inter, sans-serif" font-size="14" font-weight="600" 
+              fill="#2C3E50">24-Hour Forecast</text>
+        
+        <rect x="0" y="10" width="200" height="1" fill="#E1E8ED"/>
+        
+        <!-- Hour items -->
+        <g transform="translate(0, 25)">
+          <text x="0" y="15" font-family="Inter, sans-serif" font-size="12" 
+                fill="#5A6C7D">15:00</text>
+          <text x="40" y="15" font-family="Inter, sans-serif" font-size="12" 
+                fill="#2C3E50">☀️</text>
+          <text x="65" y="15" font-family="Inter, sans-serif" font-size="12" 
+                fill="#2C3E50">23°</text>
+          
+          <text x="0" y="35" font-family="Inter, sans-serif" font-size="12" 
+                fill="#5A6C7D">16:00</text>
+          <text x="40" y="35" font-family="Inter, sans-serif" font-size="12" 
+                fill="#2C3E50">⛅</text>
+          <text x="65" y="35" font-family="Inter, sans-serif" font-size="12" 
+                fill="#2C3E50">22°</text>
+          
+          <text x="0" y="55" font-family="Inter, sans-serif" font-size="12" 
+                fill="#5A6C7D">17:00</text>
+          <text x="40" y="55" font-family="Inter, sans-serif" font-size="12" 
+                fill="#2C3E50">☁️</text>
+          <text x="65" y="55" font-family="Inter, sans-serif" font-size="12" 
+                fill="#2C3E50">21°</text>
+        </g>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Bottom branding -->
+  <text x="600" y="580" font-family="Inter, sans-serif" font-size="16" 
+        text-anchor="middle" fill="#ffffff" opacity="0.7">Powered by Open-Meteo • Built for Farcaster</text>
+</svg> 
